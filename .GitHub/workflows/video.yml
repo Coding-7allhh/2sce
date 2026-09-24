@@ -1,0 +1,103 @@
+name: Generate 720p Reaction Videos
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-videos:
+
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 360
+
+    steps:
+
+      # ------------------------------------------------------
+      # CHECKOUT REPOSITORY
+      # ------------------------------------------------------
+
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+
+      # ------------------------------------------------------
+      # PYTHON
+      # ------------------------------------------------------
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+
+      # ------------------------------------------------------
+      # SYSTEM PACKAGES
+      # ------------------------------------------------------
+
+      - name: Install FFmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+
+      # ------------------------------------------------------
+      # PYTHON DEPENDENCIES
+      # ------------------------------------------------------
+
+      - name: Install Python packages
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+
+      # ------------------------------------------------------
+      # CHECK ENVIRONMENT
+      # ------------------------------------------------------
+
+      - name: Check versions
+        run: |
+          python --version
+          ffmpeg -version | head -n 1
+          python -c "import moviepy; print('MoviePy:', moviepy.__version__)"
+          python -c "import gdown; print('gdown:', gdown.__version__)"
+
+
+      # ------------------------------------------------------
+      # RUN VIDEO ENGINE
+      # ------------------------------------------------------
+
+      - name: Download Drive assets and generate videos
+        run: |
+          python main.py
+
+
+      # ------------------------------------------------------
+      # UPLOAD OUTPUT VIDEOS
+      # ------------------------------------------------------
+
+      - name: Upload generated videos
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reaction-videos-720p
+          path: output/reaction_720p/
+          if-no-files-found: warn
+          retention-days: 7
+
+
+      # ------------------------------------------------------
+      # UPLOAD PROCESSING LOG
+      # ------------------------------------------------------
+
+      - name: Upload processing log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: processing-log
+          path: output/reaction_720p/processing_log.csv
+          if-no-files-found: warn
+          retention-days: 7
