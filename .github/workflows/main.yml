@@ -72,7 +72,7 @@ jobs:
 
       - name: Download Drive assets and generate videos
         run: |
-          python B4.py
+          python main.py
 
 
       # ------------------------------------------------------
