@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+assets/top_clips/
+clips/
+output/
+*.mp4
+*.mov
+*.mkv
+*.webm
+
+.DS_Store
+Thumbs.db
